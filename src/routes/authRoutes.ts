@@ -1,11 +1,14 @@
-const express = require("express");
-const { body } = require("express-validator");
-const { register, login } = require("../controllers/authController");
+import { Router } from "express";
+import { body } from "express-validator";
+import { register, login } from "../controllers/authController";
+import multer from "multer";
 
-const router = express.Router();
+const router: Router = Router();
+const upload = multer();
 
 router.post(
   "/register",
+  upload.none(), // Menangani multipart/form-data tanpa file
   [
     body("username").notEmpty().withMessage("Username is required"),
     body("email").isEmail().withMessage("Invalid email format"),
@@ -27,6 +30,7 @@ router.post(
 
 router.post(
   "/login",
+  upload.none(),
   [
     body("email").isEmail().withMessage("Invalid email format"),
     body("password").notEmpty().withMessage("Password is required"),
@@ -34,4 +38,4 @@ router.post(
   login
 );
 
-module.exports = router;
+export default router;
