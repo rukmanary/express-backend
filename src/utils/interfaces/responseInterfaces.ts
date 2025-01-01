@@ -1,3 +1,4 @@
+import { Response } from "express";
 import {
   ClientErrorHttpStatusCode,
   InformationalHttpStatusCode,
@@ -14,34 +15,34 @@ export interface ApiResponse {
 }
 
 export interface InformationalParams {
-  res: any;
+  res: Response;
   status?: InformationalHttpStatusCode;
   message?: string;
 }
 
 export interface SuccessParams {
-  res: any;
+  res: Response;
   status?: SuccessHttpStatusCode;
   message?: string;
   data?: any;
 }
 
 export interface RedirectParams {
-  res: any;
+  res: Response;
   status?: RedirectionHttpStatusCode;
   message?: string;
   location: string;
 }
 
 export interface ErrorClientParams {
-  res: any;
+  res: Response;
   status?: ClientErrorHttpStatusCode;
   message?: string;
   error?: any[];
 }
 
 export interface ErrorServerParams {
-  res: any;
+  res: Response;
   status?: ServerErrorHttpStatusCode;
   message?: string;
   error?: any[];

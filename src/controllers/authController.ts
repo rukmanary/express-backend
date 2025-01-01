@@ -4,15 +4,28 @@ import jwt from "jsonwebtoken";
 import pool from "../config/db";
 import { User } from "../models/userModel";
 import { validationResult } from "express-validator";
+import {
+  sendClientError,
+  sendServerError,
+  sendSuccess,
+} from "../utils/standardResponse";
+import {
+  ClientErrorHttpStatusCode,
+  ServerErrorHttpStatusCode,
+  SuccessHttpStatusCode,
+} from "../enums/httpStatusCodes";
 
 // Registration
 export const register = async (req: Request, res: Response): Promise<void> => {
-  console.log("masuk sini");
   const errors = validationResult(req);
   const isError = !errors.isEmpty();
 
   if (isError) {
-    res.status(400).json({ errors: errors.array() });
+    sendClientError({
+      res,
+      status: ClientErrorHttpStatusCode.BAD_REQUEST_400,
+      error: errors.array(),
+    });
     return;
   }
 
@@ -25,11 +38,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
       [username, email, hashedPassword]
     );
-
-    res.status(201).json({ message: "User registered successfully" });
+    sendSuccess({
+      res,
+      status: SuccessHttpStatusCode.CREATED_201,
+      message: "User registered successfully",
+    });
   } catch (error) {
-    console.log({ error });
-    res.status(500).json({ error: "Server error" });
+    sendServerError({
+      res,
+      status: ServerErrorHttpStatusCode.INTERNAL_SERVER_ERROR_500,
+      error: ["Server Error"],
+    });
   }
 };
 
@@ -39,7 +58,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   const isError = !errors.isEmpty();
 
   if (isError) {
-    res.status(400).json({ errors: errors.array() });
+    sendClientError({
+      res,
+      status: ClientErrorHttpStatusCode.BAD_REQUEST_400,
+      error: errors.array(),
+    });
     return;
   }
 
@@ -53,22 +76,41 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const user = (rows as User[])[0];
 
     if (!user) {
-      res.status(401).json({ message: "Invalid email or password" });
+      sendClientError({
+        res,
+        status: ClientErrorHttpStatusCode.UNAUTHORIZED_401,
+        message: "Invalid email or password",
+        error: ["Invalid email or password"],
+      });
       return;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      res.status(401).json({ message: "Invalid email or password" });
+      sendClientError({
+        res,
+        status: ClientErrorHttpStatusCode.UNAUTHORIZED_401,
+        message: "Invalid email or password",
+        error: ["Invalid email or password"],
+      });
       return;
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: "7d",
     });
-    res.json({ token });
+    sendSuccess({
+      res,
+      status: SuccessHttpStatusCode.OK_200,
+      data: { token },
+      message: "Success Login",
+    });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    sendServerError({
+      res,
+      status: ServerErrorHttpStatusCode.INTERNAL_SERVER_ERROR_500,
+      error: ["Server Error"],
+    });
   }
 };

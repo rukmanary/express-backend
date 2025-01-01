@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { sendClientError } from "../utils/standardResponse";
+import { ClientErrorHttpStatusCode } from "../enums/httpStatusCodes";
 
 export interface AuthRequest extends Request {
   user?: { id: number };
@@ -13,7 +15,12 @@ export const authMiddleware = (
   const token = req.header("Authorization")?.split(" ")[1];
 
   if (!token) {
-    res.status(401).json({ message: "Access denied. No token provided." });
+    sendClientError({
+      res,
+      status: ClientErrorHttpStatusCode.UNAUTHORIZED_401,
+      message: "Access denied. No token provided.",
+      error: ["Access denied. No token provided."],
+    });
     return;
   }
 
@@ -24,6 +31,11 @@ export const authMiddleware = (
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(400).json({ message: "Invalid token." });
+    sendClientError({
+      res,
+      status: ClientErrorHttpStatusCode.BAD_REQUEST_400,
+      message: "Invalid token.",
+      error: ["Invalid token."],
+    });
   }
 };

@@ -1,6 +1,16 @@
 import { Request, Response } from "express";
 import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
+import {
+  sendClientError,
+  sendServerError,
+  sendSuccess,
+} from "../utils/standardResponse";
+import {
+  ClientErrorHttpStatusCode,
+  ServerErrorHttpStatusCode,
+  SuccessHttpStatusCode,
+} from "../enums/httpStatusCodes";
 
 interface AuthRequest extends Request {
   user?: { id: number };
@@ -12,7 +22,12 @@ export const getProfile = async (
 ): Promise<void> => {
   try {
     if (!req.user?.id) {
-      res.status(400).json({ message: "User ID is required" });
+      sendClientError({
+        res,
+        status: ClientErrorHttpStatusCode.BAD_REQUEST_400,
+        message: "User ID is required",
+        error: ["User ID is required"],
+      });
       return;
     }
 
@@ -23,12 +38,20 @@ export const getProfile = async (
     );
 
     if (rows.length === 0) {
-      res.status(404).json({ message: "User not found" });
+      sendClientError({
+        res,
+        status: ClientErrorHttpStatusCode.NOT_FOUND_404,
+        message: "User not found",
+        error: ["User not found"],
+      });
       return;
     }
-    res.json(rows[0]);
+    sendSuccess({ res, status: SuccessHttpStatusCode.OK_200, data: rows[0] });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    sendServerError({
+      res,
+      status: ServerErrorHttpStatusCode.INTERNAL_SERVER_ERROR_500,
+      error: ["Server Error"],
+    });
   }
 };

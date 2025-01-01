@@ -20,7 +20,7 @@ import {
 export const sendInformational = ({
   res,
   status = InformationalHttpStatusCode.CONTINUE_100,
-  message = "Processing",
+  message,
 }: InformationalParams): Response => {
   return res.status(status).json({
     status,
@@ -32,7 +32,7 @@ export const sendInformational = ({
 export const sendSuccess = ({
   res,
   status = SuccessHttpStatusCode.OK_200,
-  message = "Success",
+  message,
   data = null,
 }: SuccessParams): Response => {
   const response: ApiResponse = {
@@ -48,7 +48,7 @@ export const sendSuccess = ({
 export const sendRedirect = ({
   res,
   status = RedirectionHttpStatusCode.MOVED_PERMANENTLY_301,
-  message = "Redirect",
+  message,
   location,
 }: RedirectParams): Response => {
   res.setHeader("Location", location);
@@ -62,7 +62,7 @@ export const sendRedirect = ({
 export const sendClientError = ({
   res,
   status = ClientErrorHttpStatusCode.NOT_FOUND_404,
-  message = "Error",
+  message,
   error = [],
 }: ErrorClientParams): Response => {
   const response: ApiResponse = {
@@ -78,7 +78,7 @@ export const sendClientError = ({
 export const sendServerError = ({
   res,
   status = ServerErrorHttpStatusCode.INTERNAL_SERVER_ERROR_500,
-  message = "Error",
+  message,
   error = [],
 }: ErrorServerParams): Response => {
   const response: ApiResponse = {
